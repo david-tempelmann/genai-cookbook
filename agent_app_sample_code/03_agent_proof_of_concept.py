@@ -18,12 +18,31 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+dbutils.widgets.text("MLFLOW_EXPERIMENT_NAME", "")
+MLFLOW_EXPERIMENT_NAME = dbutils.widgets.get("MLFLOW_EXPERIMENT_NAME")
+dbutils.widgets.text("UC_CATALOG", "")
+UC_CATALOG = dbutils.widgets.get("UC_CATALOG")
+dbutils.widgets.text("UC_SCHEMA", "")
+UC_SCHEMA = dbutils.widgets.get("UC_SCHEMA")
+dbutils.widgets.text("UC_MODEL_NAME", "")
+UC_MODEL_NAME = dbutils.widgets.get("UC_MODEL_NAME")
+dbutils.widgets.text("AGENT_NAME", "")
+AGENT_NAME = dbutils.widgets.get("AGENT_NAME")
+dbutils.widgets.text("POC_DATA_PIPELINE_RUN_NAME", "")
+POC_DATA_PIPELINE_RUN_NAME = dbutils.widgets.get("POC_DATA_PIPELINE_RUN_NAME")
+dbutils.widgets.text("POC_CHAIN_RUN_NAME", "")
+POC_CHAIN_RUN_NAME = dbutils.widgets.get("POC_CHAIN_RUN_NAME")
+dbutils.widgets.text("yaml_file_path", "/Workspace/Users/david.tempelmann@databricks.com/genai-cookbook/agent_app_sample_code/agents/generated_configs/agent.yaml")
+yaml_file_path = dbutils.widgets.get("yaml_file_path")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Import the global configuration
 
 # COMMAND ----------
 
-# MAGIC %run ./00_global_config
+#%run ./00_global_config
 
 # COMMAND ----------
 
@@ -36,35 +55,81 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
-retriever_config = RetrieverToolConfig(
-    vector_search_index=f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}_chunked_docs_index",
-    vector_search_schema=RetrieverSchemaConfig(
-        primary_key="chunk_id",
-        chunk_text="content_chunked",
-        document_uri="doc_uri",
-        additional_metadata_columns=[],
-    ),
-    parameters=RetrieverParametersConfig(num_results=5, query_type="ann"),
-    vector_search_threshold=0.1,
-    chunk_template="Passage text: {chunk_text}\nPassage metadata: {metadata}\n\n",
-    prompt_template="""Use the following pieces of retrieved context to answer the question.\nOnly use the passages from context that are relevant to the query to answer the question, ignore the irrelevant passages.  When responding, cite your source, referring to the passage by the columns in the passage's metadata.\n\nContext: {context}""",
-    tool_description_prompt="Search for documents that are relevant to a user's query about the [REPLACE WITH DESCRIPTION OF YOUR DOCS].",
-)
+# retriever_config = RetrieverToolConfig(
+#     vector_search_index=f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}_chunked_docs_index",
+#     vector_search_schema=RetrieverSchemaConfig(
+#         primary_key="chunk_id",
+#         chunk_text="content_chunked",
+#         document_uri="doc_uri",
+#         additional_metadata_columns=[],
+#     ),
+#     parameters=RetrieverParametersConfig(num_results=5, query_type="ann"),
+#     vector_search_threshold=0.1,
+#     chunk_template="Passage text: {chunk_text}\nPassage metadata: {metadata}\n\n",
+#     prompt_template="""Use the following pieces of retrieved context to answer the question.\nOnly use the passages from context that are relevant to the query to answer the question, ignore the irrelevant passages.  When responding, cite your source, referring to the passage by the columns in the passage's metadata.\n\nContext: {context}""",
+#     tool_description_prompt="Search for documents that are relevant to a user's query about the [REPLACE WITH DESCRIPTION OF YOUR DOCS].",
+# )
 
-# `llm_endpoint_name`: Model Serving endpoint with the LLM for your Agent.
-#     - Either an [Foundational Models](https://docs.databricks.com/en/machine-learning/foundation-models/index.html) Provisioned Throughput / Pay-Per-Token or [External Model](https://docs.databricks.com/en/generative-ai/external-models/index.html) of type `/llm/v1/chat` with support for [function calling](https://docs.databricks.com/en/machine-learning/model-serving/function-calling.html).  Supported models: `databricks-meta-llama-3-70b-instruct` or any of the Azure OpenAI / OpenAI models.
+# # `llm_endpoint_name`: Model Serving endpoint with the LLM for your Agent.
+# #     - Either an [Foundational Models](https://docs.databricks.com/en/machine-learning/foundation-models/index.html) Provisioned Throughput / Pay-Per-Token or [External Model](https://docs.databricks.com/en/generative-ai/external-models/index.html) of type `/llm/v1/chat` with support for [function calling](https://docs.databricks.com/en/machine-learning/model-serving/function-calling.html).  Supported models: `databricks-meta-llama-3-70b-instruct` or any of the Azure OpenAI / OpenAI models.
 
-llm_config = LLMConfig(
-    # https://docs.databricks.com/en/machine-learning/foundation-models/index.html
-    llm_endpoint_name="databricks-meta-llama-3-1-70b-instruct",
-    # Define a template for the LLM prompt.  This is how the RAG chain combines the user's question and the retrieved context.
-    llm_system_prompt_template=(
-        """You are a helpful assistant that answers questions by calling tools.  Provide responses ONLY based on the information from tools that are explictly specified to you.  If you do not have a relevant tool for a question, respond with 'Sorry, I'm not trained to answer that question'."""
-    ),
-    # Parameters that control how the LLM responds.
-    llm_parameters=LLMParametersConfig(temperature=0.01, max_tokens=1500),
-)
+# llm_config = LLMConfig(
+#     # https://docs.databricks.com/en/machine-learning/foundation-models/index.html
+#     llm_endpoint_name="databricks-meta-llama-3-1-70b-instruct",
+#     # Define a template for the LLM prompt.  This is how the RAG chain combines the user's question and the retrieved context.
+#     llm_system_prompt_template=(
+#         """You are a helpful assistant that answers questions by calling tools.  Provide responses ONLY based on the information from tools that are explictly specified to you.  If you do not have a relevant tool for a question, respond with 'Sorry, I'm not trained to answer that question'."""
+#     ),
+#     # Parameters that control how the LLM responds.
+#     llm_parameters=LLMParametersConfig(temperature=0.01, max_tokens=1500),
+# )
 
+# agent_config = AgentConfig(
+#     retriever_tool=retriever_config,
+#     llm_config=llm_config,
+#     input_example={
+#         "messages": [
+#             {
+#                 "role": "user",
+#                 "content": "What is RAG?",
+#             },
+#         ]
+#     },
+# )
+
+# agent_config.dict()
+
+# COMMAND ----------
+
+#%run ./validators/validate_agent_config
+
+# COMMAND ----------
+
+# validate_retriever_config(retriever_config)
+# validate_llm_config(llm_config)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Save the agent config
+
+# COMMAND ----------
+
+# save_agent_config(agent_config.dict(), './agents/generated_configs/agent.yaml')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Retrieve Config from yaml file
+
+# COMMAND ----------
+
+import yaml
+with open(yaml_file_path, 'r') as f:
+  config = yaml.safe_load(f)
+  
+llm_config = LLMConfig(**config.get("llm_config"))
+retriever_config = RetrieverToolConfig(**config.get("retriever_tool"))
 agent_config = AgentConfig(
     retriever_tool=retriever_config,
     llm_config=llm_config,
@@ -77,26 +142,6 @@ agent_config = AgentConfig(
         ]
     },
 )
-
-agent_config.dict()
-
-# COMMAND ----------
-
-# MAGIC %run ./validators/validate_agent_config
-
-# COMMAND ----------
-
-validate_retriever_config(retriever_config)
-validate_llm_config(llm_config)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Save the agent config
-
-# COMMAND ----------
-
-save_agent_config(agent_config.dict(), './agents/generated_configs/agent.yaml')
 
 # COMMAND ----------
 

@@ -42,12 +42,25 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
+dbutils.widgets.text("MLFLOW_EXPERIMENT_NAME", "")
+MLFLOW_EXPERIMENT_NAME = dbutils.widgets.get("MLFLOW_EXPERIMENT_NAME")
+dbutils.widgets.text("UC_CATALOG", "")
+UC_CATALOG = dbutils.widgets.get("UC_CATALOG")
+dbutils.widgets.text("UC_SCHEMA", "")
+UC_SCHEMA = dbutils.widgets.get("UC_SCHEMA")
+dbutils.widgets.text("AGENT_NAME", "")
+AGENT_NAME = dbutils.widgets.get("AGENT_NAME")
+dbutils.widgets.text("POC_DATA_PIPELINE_RUN_NAME", "")
+POC_DATA_PIPELINE_RUN_NAME = dbutils.widgets.get("POC_DATA_PIPELINE_RUN_NAME")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Import the global configuration
 
 # COMMAND ----------
 
-# MAGIC %run ./00_global_config
+#%run ./00_global_config
 
 # COMMAND ----------
 
@@ -78,7 +91,7 @@ mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
 # Vector Search endpoint where index is loaded
 # If this does not exist, it will be created
-VECTOR_SEARCH_ENDPOINT = f"{user_name}_vector_search"
+VECTOR_SEARCH_ENDPOINT = f"one-env-shared-endpoint-12"
 
 # Source location for documents
 # You need to create this location and add files

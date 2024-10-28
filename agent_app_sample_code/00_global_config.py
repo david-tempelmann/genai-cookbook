@@ -34,13 +34,13 @@ user_name = user_email.split("@")[0].replace(".", "").lower()[:35]
 # COMMAND ----------
 
 # The name of the Agent.  This is used to name the agent's UC model and prepended to the output Delta Tables + Vector Indexes
-AGENT_NAME = "my_agent_app"
+AGENT_NAME = "my_agent_app_test"
 
 # UC Catalog & Schema where outputs tables/indexes are saved
 # By default, will use the current user name to create a unique UC catalog/schema & vector search endpoint
 # If this catalog/schema does not exist, you need create catalog/schema permissions.
-UC_CATALOG = f"{user_name}_catalog"
-UC_SCHEMA = f"cookbook"
+UC_CATALOG = f"david_tempelmann"
+UC_SCHEMA = "genai_cookbook"
 
 ## UC Model name where the Agent's model is logged
 UC_MODEL_NAME = f"{UC_CATALOG}.{UC_SCHEMA}.{AGENT_NAME}"
@@ -129,3 +129,7 @@ except NotFound as e:
         raise ValueError(
             "Unity Catalog Schema `{UC_CATALOG}.{UC_SCHEMA}` does not exist."
         )
+
+# COMMAND ----------
+
+
