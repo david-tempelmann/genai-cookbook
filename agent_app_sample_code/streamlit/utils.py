@@ -6,8 +6,11 @@ import streamlit as st
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.errors import NotFound, PermissionDenied, ResourceDoesNotExist, ResourceAlreadyExists
 from databricks.sdk.service import jobs
+from databricks.sdk.service.jobs import JobRunAs
+from databricks.sdk.service.compute import ClusterSpec, DataSecurityMode, AwsAttributes
 from databricks.sdk.service.serving import EndpointStateReady
 from databricks.sdk.service.workspace import ImportFormat
+from databricks.sdk.service.jobs import JobCluster
 
 from agent_config import *
 
@@ -158,6 +161,7 @@ def submit_jobs(w: WorkspaceClient, cluster_id: str, UC_CATALOG, UC_SCHEMA, UC_M
     job_run = w.jobs.submit(
         run_name="test_tuning",
         tasks=[data_pipeline_job, agent_job],
+        run_as=JobRunAs(user_name="david.tempelmann@databricks.com")
     )
 
 
